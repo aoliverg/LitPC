@@ -45,6 +45,7 @@ def translate(segment):
 parser = argparse.ArgumentParser(description='A script to convert an epub file into a text file with a light markup.')
 parser.add_argument("-i", "--input_file", type=str, help="The epub input file to convert", required=True)
 parser.add_argument("-o", "--output_file", type=str, help="The output text file", required=True)
+parser.add_argument("-m", "--add_marks", action='store_true', help="Whether to add light markup", required=False, default=False)
 parser.add_argument("-c", "--chapter", type=str, help="The tag (h1, h2, h3) that marks the title of a chapter", required=False)
 
 args = parser.parse_args()
@@ -62,11 +63,14 @@ autor=metadata[0][0]
 
 sortida=codecs.open(args.output_file,"w",encoding="utf-8")
 
-cadena="\\title "+titol
+if args.add_marks:cadena="\\title "+titol
+else: cadena=titol
 sortida.write(cadena+"\n")
-cadena="\\author_firstname "+autor.split(" ")[0]
+if args.add_marks:cadena="\\author_firstname "+autor.split(" ")[0]
+else: cadena=autor
 sortida.write(cadena+"\n")
-cadena="\\author_lastname "+" ".join(autor.split(" ")[1:])
+if args.add_marks: cadena="\\author_lastname "+" ".join(autor.split(" ")[1:])
+else: cadena=" ".join(autor.split(" ")[1:])
 sortida.write(cadena+"\n")
 
 segmentcount=1
@@ -80,37 +84,37 @@ for item in book.get_items():
         for event, elem in etree.iterparse(f, events=("start", "end")):            
             if event=="end" and elem.tag=="{http://www.w3.org/1999/xhtml}title":
                 if not elem.text==None:
-                    cadena=elem.text
+                    cadena="".join(elem.itertext())
                     sortida.write(cadena+"\n")
             if event=="end" and elem.tag=="{http://www.w3.org/1999/xhtml}h1":
                 if not elem.text==None:
                     
-                    if elem.tag.replace("{http://www.w3.org/1999/xhtml}","")==chaptermark:
-                        cadena="\chapter "+elem.text
+                    if elem.tag.replace("{http://www.w3.org/1999/xhtml}","")==chaptermark and args.add_marks:
+                        cadena="\chapter "+"".join(elem.itertext())
                         sortida.write(cadena+"\n")
                     else:
-                        cadena=elem.text
+                        cadena="".join(elem.itertext())
                         sortida.write(cadena+"\n")
             if event=="end" and elem.tag=="{http://www.w3.org/1999/xhtml}h2":
                 if not elem.text==None:
-                    if elem.tag.replace("{http://www.w3.org/1999/xhtml}","")==chaptermark:
-                        cadena="\chapter "+elem.text
+                    if elem.tag.replace("{http://www.w3.org/1999/xhtml}","")==chaptermark and args.add_marks:
+                        cadena="\chapter "+"".join(elem.itertext())
                         sortida.write(cadena+"\n")
                     else:
-                        cadena=elem.text
+                        cadena="".join(elem.itertext())
                         sortida.write(cadena+"\n")
             if event=="end" and elem.tag=="{http://www.w3.org/1999/xhtml}h3":
                 if not elem.text==None:                    
-                    if elem.tag.replace("{http://www.w3.org/1999/xhtml}","")==chaptermark:
-                        cadena="\chapter "+elem.text
+                    if elem.tag.replace("{http://www.w3.org/1999/xhtml}","")==chaptermark and args.add_marks:
+                        cadena="\chapter "+"".join(elem.itertext())
                         sortida.write(cadena+"\n")
                     else:
-                        cadena=elem.text
+                        cadena="".join(elem.itertext())
                         sortida.write(cadena+"\n")
 
             if event=="end" and elem.tag=="{http://www.w3.org/1999/xhtml}p":
                 if not elem.text==None:
-                    cadena=escape(elem.text)
+                    cadena=escape("".join(elem.itertext()))
                     sortida.write(cadena+"\n")
                 
 

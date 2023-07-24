@@ -64,7 +64,7 @@ parser.add_argument("-i", "--input_file", type=str, help="The epub input file to
 parser.add_argument("-o", "--output_file", type=str, help="The output text file", required=True)
 parser.add_argument("-s", "--srx_file", type=str, help="The srx file to be used. By default segment.srx", required=False)
 parser.add_argument("-l", "--srx_lang", type=str, help="The language as stated in the SRX file. By default English", required=False)
-parser.add_argument("-p", "--paragraph_mark", type=str, help="Add the <p> mark to paragraph. Useful to align with Hunalign. Default True", required=False, default="True")
+parser.add_argument("-p", "--paragraph_mark", action='store_true', help="Add the <p> mark to paragraph. Useful to align with Hunalign. Default True", required=False, default="True")
 
 
 args = parser.parse_args()
@@ -113,27 +113,27 @@ for item in book.get_items():
         for event, elem in etree.iterparse(f, events=("start", "end")):            
             if event=="end" and elem.tag=="{http://www.w3.org/1999/xhtml}title":
                 if not elem.text==None:
-                    cadena=elem.text                    
+                    cadena="".join(elem.itertext())                    
                     if paragraph_mark: sortida.write("<p>\n")
                     segmenta(cadena)
             if event=="end" and elem.tag=="{http://www.w3.org/1999/xhtml}h1":
                 if not elem.text==None:
-                    cadena=elem.text
+                    cadena="".join(elem.itertext())
                     if paragraph_mark: sortida.write("<p>\n")
                     segmenta(cadena)
             if event=="end" and elem.tag=="{http://www.w3.org/1999/xhtml}h2":
                 if not elem.text==None:
-                    cadena=elem.text
+                    cadena="".join(elem.itertext())
                     if paragraph_mark: sortida.write("<p>\n")
                     segmenta(cadena)
             if event=="end" and elem.tag=="{http://www.w3.org/1999/xhtml}h3":
                 if not elem.text==None:                    
-                    cadena=elem.text
+                    cadena="".join(elem.itertext())
                     if paragraph_mark: sortida.write("<p>\n")
                     segmenta(cadena)
             if event=="end" and elem.tag=="{http://www.w3.org/1999/xhtml}p":
                 if not elem.text==None:
-                    cadena=escape(elem.text)
+                    cadena=escape("".join(elem.itertext()))
                     if paragraph_mark: sortida.write("<p>\n")
                     segmenta(cadena)
 
